@@ -2,20 +2,6 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 
-const route = useRoute()
-const mentor = ref({
-  id: 1,
-  name: 'John Doe',
-  email: 'john.doe@example.com',
-  expertise: 'Software Development',
-  experience: '10 years',
-  status: 'Active',
-  bio: 'Experienced software developer with a passion for mentoring.',
-  skills: ['JavaScript', 'Python', 'React', 'Node.js'],
-  currentMentees: 5,
-  totalMentees: 15,
-  rating: 4.8,
-})
 
 onMounted(() => {
   // In a real application, fetch mentor details using route.params.id

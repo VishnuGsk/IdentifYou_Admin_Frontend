@@ -1,42 +1,34 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-
+import axios from 'axios'
 const router = useRouter()
 const search = ref('')
-
 const headers = [
-  { title: 'Name', key: 'name', align: 'start', sortable: true },
-  { title: 'Interests', key: 'interests', align: 'start', sortable: true },
-  { title: 'Progress', key: 'progress', align: 'start', sortable: true },
-  { title: 'Status', key: 'status', align: 'start', sortable: true },
-  { title: 'Actions', key: 'actions', align: 'end', sortable: false },
-]
+          { title: 'Full Name', key: 'fullName', align: 'start', sortable: true },
+          { title: 'Email', key: 'email', align: 'start', sortable: true },
+          { title: 'Phone', key: 'phoneNumber', align: 'start', sortable: true },
+          { title: 'Status', key: 'status', align: 'start', sortable: true },
+          { title: 'Actions', key: 'actions', align: 'end', sortable: false },
+        ];
 
-const mentees = ref([
-  {
-    id: 1,
-    name: 'Alice Johnson',
-    interests: 'Web Development',
-    progress: '75%',
-    status: 'Active',
-  },
-  {
-    id: 2,
-    name: 'Bob Lee',
-    interests: 'Data Science',
-    progress: '50%',
-    status: 'Inactive',
-  },
-  {
-    id: 3,
-    name: 'Clara Adams',
-    interests: 'Cybersecurity',
-    progress: '90%',
-    status: 'Active',
-  },
-])
-
+const mentees = ref([]);
+const fetchMentees = async () => {
+          try {
+            const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_URL}/api/v1/mentees`);
+            // Transform data to include full name
+            mentees.value = response.data.data.map((mentor: any) => ({
+              ...mentor,
+              fullName: `${mentor.firstName} ${mentor.lastName}`, // Combine firstName and lastName
+              status: mentor.status === 'ACTIVE' ? 'Active' : 'Inactive', // Normalize status
+            }));
+          } catch (error) {
+            console.error('Error fetching mentors:', error);
+          }
+        };
+  onMounted(() => {
+    fetchMentees()
+        })
 const viewDetails = (id: number) => {
   router.push({ name: 'mentee-details', params: { id } })
 }
@@ -81,7 +73,7 @@ const viewDetails = (id: number) => {
               variant="text"
               size="small"
               color="primary"
-              @click="viewDetails(item.id)"
+              @click="viewDetails(item.menteeId)"
             >
               <v-icon>mdi-eye</v-icon>
             </v-btn>

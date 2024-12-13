@@ -1,42 +1,40 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import axios from 'axios';
 
 const router = useRouter()
 const search = ref('')
 
 const headers = [
-  { title: 'Name', key: 'name', align: 'start', sortable: true },
-  { title: 'Category', key: 'category', align: 'start', sortable: true },
-  { title: 'Duration', key: 'duration', align: 'start', sortable: true },
+  { title: 'Name', key: 'programName', align: 'start', sortable: true },
+  { title: 'Description', key: 'description', align: 'start', sortable: true },
+  { title: 'Duration', key: 'durationValue', align: 'start', sortable: true },
+  {title: 'Start Date', key: 'startDate', align: 'start', sortable: true },
+  { title: 'End Date', key: 'endDate', align: 'start', sortable: true },
+  { title: 'Benifit', key: 'benefits', align: 'start', sortable: true },
   { title: 'Status', key: 'status', align: 'start', sortable: true },
-  { title: 'Actions', key: 'actions', align: 'end', sortable: false },
+  // { title: 'Days', key: 'actions', align: 'days', sortable: false },
 ]
 
-const programs = ref([
-  { 
-    id: 1, 
-    name: 'Web Development Bootcamp', 
-    category: 'Development', 
-    duration: '12 weeks', 
-    status: 'Active' 
-  },
-  { 
-    id: 2, 
-    name: 'Data Science Fundamentals', 
-    category: 'Data Science', 
-    duration: '16 weeks', 
-    status: 'Active' 
-  },
-  { 
-    id: 3, 
-    name: 'UI/UX Design Basics', 
-    category: 'Design', 
-    duration: '8 weeks', 
-    status: 'Inactive' 
-  },
-])
+const programs = ref([])
 
+const fetchPrograms = async () => {
+          try {
+            const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_URL}/api/v1/programs`);
+            // Transform data to include full name
+            programs.value = response.data.data.map((program: any) => ({
+              ...program,
+            programName: program.programName, // Combine firstName and lastName
+              status: program.status === 'ACTIVE' ? 'Active' : 'Inactive', // Normalize status
+            }));
+          } catch (error) {
+            console.error('Error fetching mentors:', error);
+          }
+        };
+        onMounted(() => {
+          fetchPrograms()
+        })
 const viewDetails = (id: number) => {
   router.push({ name: 'program-details', params: { id } })
 }
