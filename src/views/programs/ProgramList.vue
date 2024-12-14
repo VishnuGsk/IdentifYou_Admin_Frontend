@@ -23,7 +23,7 @@ const fetchPrograms = async () => {
           try {
             const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_URL}/api/v1/programs`);
             // Transform data to include full name
-            programs.value = response.data.data.map((program) => {
+            programs.value = response.data.data.map((program : any) => {
               // Format the start date to dd/mm/yyyy
               const formattedStartDate = program.startDate
                 ? formatDate(program.startDate)
@@ -45,7 +45,7 @@ const fetchPrograms = async () => {
             console.error('Error fetching mentors:', error);
           }
         };
-        const formatDate = (dateString) => {
+        const formatDate = (dateString : any) => {
             if (!dateString || dateString.length !== 8) return 'Invalid Date'; // Ensure proper length
             // Extract year, month, and day
             const year = dateString.substring(0, 4);
