@@ -23,15 +23,42 @@ const fetchPrograms = async () => {
           try {
             const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_URL}/api/v1/programs`);
             // Transform data to include full name
-            programs.value = response.data.data.map((program: any) => ({
-              ...program,
-            programName: program.programName, // Combine firstName and lastName
-              status: program.status === 'ACTIVE' ? 'Active' : 'Inactive', // Normalize status
-            }));
+            programs.value = response.data.data.map((program) => {
+              // Format the start date to dd/mm/yyyy
+              const formattedStartDate = program.startDate
+                ? formatDate(program.startDate)
+                : null; // H
+                const formattedEndDate = program.endDate
+                ? formatDate(program.startDate)
+                : null; // Handle cases where startDate might be null or undefined
+
+              return {
+                ...program,
+                startDate: formattedStartDate, // Use the formatted date
+                endDate: formattedEndDate,
+                programName: program.programName, // Retain program name
+                status: program.status === 'ACTIVE' ? 'Active' : 'Inactive', // Normalize status,
+                durationValue: program.durationValue + ' ' +program.durationUnit.toLowerCase()
+              };
+            });
           } catch (error) {
             console.error('Error fetching mentors:', error);
           }
         };
+        const formatDate = (dateString) => {
+            if (!dateString || dateString.length !== 8) return 'Invalid Date'; // Ensure proper length
+            // Extract year, month, and day
+            const year = dateString.substring(0, 4);
+            const month = dateString.substring(4, 6);
+            const day = dateString.substring(6, 8);
+
+            // Validate if it's a valid date
+            const date = new Date(`${year}-${month}-${day}`);
+            if (isNaN(date)) return 'Invalid Date'; // Check if date is valid
+
+            // Return in dd/mm/yyyy format
+            return `${day}/${month}/${year}`;
+          };
         onMounted(() => {
           fetchPrograms()
         })
