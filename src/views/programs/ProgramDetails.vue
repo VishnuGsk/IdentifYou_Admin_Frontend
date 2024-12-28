@@ -1,30 +1,134 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, onMounted, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import axios from 'axios';
+const router = useRouter()
+// Use route params if needed to fetch specific data (for example, by ID)
+const route = useRoute();
+const loading = ref(true)
+const programDetails = ref({
+  id: '',
+  programName: '',
+  participantCount: '',
+  durationValue: '',
+  endTiming: '',
+  startTiming: '',
+  endDate: '',
+  status: '',
+  days: [] as string[],
+  userID: '',
+  durationUnit: '',
+  gender: '',
+  participants: [] as string[],
+  expertise: '',
+  experience: '',
+  rating: 0,
+  currentMentees: 0,
+  totalMentees: 0,
+  skills: [] as string[]
+});
+const goBack = () => {
+  router.push({ name: 'programs' })
+  
+}
+const formatDate = (dateString : any) => {
+            if (!dateString || dateString.length !== 8) return 'Invalid Date'; // Ensure proper length
+            // Extract year, month, and day
+            const year = dateString.substring(0, 4);
+            const month = dateString.substring(4, 6);
+            const day = dateString.substring(6, 8);
 
+            // Validate if it's a valid date
+            const date = new Date(`${year}-${month}-${day}`);
+            if (isNaN(date)) return 'Invalid Date'; // Check if date is valid
 
+            // Return in dd/mm/yyyy format
+            return `${day}/${month}/${year}`;
+          };
+const fetchProgramDetails = async (id: string, programId: string) => {
+  try {
+    console.log('Test')
+    loading.value = true;
+    const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_URL}/api/v1/programs/${id}/${programId}`);
+    
+    // Extract and transform data from API response
+    console.log("Resposne for particular programs", response)
+    const data = response.data.data;
+    programDetails.value = {
+      id: data.programID ?? '',
+      programName: data.programName ?? '',
+      participantCount: data.participants?.length.toString() ?? '0',
+      durationValue: data.durationValue ?? '',
+      endTiming: data.endTime ?? '',
+      startTiming: data.startTime ?? '',
+      endDate: formatDate(data.endDate)  ?? '',
+      status: data.status ?? '',
+      startDate : formatDate(data.startDate) ?? '',
+      benefits: data.benefits ?? '',
+      days: Array.isArray(data.days) ? data.days : [],
+      userID: data.userID ?? '',
+      durationUnit: data.durationUnit ?? '',
+      gender: '', // Gender is not in the current data structure, default to empty
+      participants: Array.isArray(data.participants) ? data.participants : [],
+      expertise: '', // Expertise is not in the current data structure, default to empty
+      experience: '', // Experience is not in the current data structure, default to empty
+      rating: 0, // Rating is not in the current data structure, default to 0
+      currentMentees: 0, // Current mentees are not in the current data structure, default to 0
+      totalMentees: 0, // Total mentees are not in the current data structure, default to 0
+      skills: [], // Skills are not in the current data structure, default to empty
+    };
+
+  } catch (error) {
+    console.error('Error fetching Prgram details:', error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+// Setup the event listener in onMounted lifecycle hook
 onMounted(() => {
-  // In a real application, fetch mentor details using route.params.id
-  console.log('Mentor ID:', route.params.id)
-})
+  console.log('Inside ProgramDetails: ', route.params);
+  if (route.params.id && route.params.programId) {
+     fetchProgramDetails(route.params.id as string, route.params.programId as string)
+
+  console.log('Program Data :', programDetails)
+  }
+   
+
+
+  
+
+});
+
 </script>
 
 <template>
+
   <v-container fluid class="pa-6">
+    <v-btn
+      color="primary"
+      variant="text"
+      prepend-icon="mdi-arrow-left"
+      @click="goBack"
+      class="mb-4"
+    >
+      Back to Programs
+    </v-btn>
     <v-row>
       <v-col cols="12" md="4">
         <v-card class="glass-card">
           <v-card-text class="text-center">
+            <!-- Display Program Details if available -->
             <v-avatar size="120" color="primary" class="mb-4">
-              <span class="text-h4 text-white">{{ mentor.name.charAt(0) }}</span>
+              <span class="text-h4 text-white">{{ programDetails.programName?.charAt(0) || '?' }}</span>
             </v-avatar>
-            <h2 class="text-h5 mb-2">{{ mentor.name }}</h2>
-            <p class="text-subtitle-1 text-medium-emphasis">{{ mentor.expertise }}</p>
+            <h2 class="text-h5 mb-2">{{ programDetails?.programName || 'N/A' }}</h2>
+            <p class="text-subtitle-1 text-medium-emphasis">{{ programDetails?.benefits || 'N/A' }}</p>
             <v-chip
-              :color="mentor.status === 'Active' ? 'success' : 'error'"
+              :color="programDetails?.status === 'ACTIVE' ? 'success' : 'error'"
               class="mt-2"
             >
-              {{ mentor.status }}
+              {{ programDetails?.status || 'N/A' }}
             </v-chip>
           </v-card-text>
         </v-card>
@@ -37,32 +141,31 @@ onMounted(() => {
             <v-row>
               <v-col cols="12" md="6">
                 <div class="mb-4">
-                  <div class="text-subtitle-2 text-medium-emphasis">Email</div>
-                  <div>{{ mentor.email }}</div>
+                  <div class="text-subtitle-2 text-medium-emphasis">Participant Count</div>
+                  <div>{{ programDetails?.participantCount || 'N/A' }}</div>
                 </div>
                 <div class="mb-4">
-                  <div class="text-subtitle-2 text-medium-emphasis">Experience</div>
-                  <div>{{ mentor.experience }}</div>
+                  <div class="text-subtitle-2 text-medium-emphasis">Duration</div>
+                  <div>{{ programDetails?.durationValue || 'N/A' }} {{ programDetails?.durationUnit || '' }}</div>
+                </div>
+                <div class="mb-4">
+                  <div class="text-subtitle-2 text-medium-emphasis">Start Date</div>
+                  <div>{{ programDetails?.startDate || 'N/A' }}</div>
                 </div>
               </v-col>
               <v-col cols="12" md="6">
                 <div class="mb-4">
-                  <div class="text-subtitle-2 text-medium-emphasis">Rating</div>
-                  <div class="d-flex align-center">
-                    {{ mentor.rating }}
-                    <v-rating
-                      :model-value="mentor.rating"
-                      color="amber"
-                      density="compact"
-                      half-increments
-                      readonly
-                      class="ms-2"
-                    ></v-rating>
-                  </div>
+                  <div class="text-subtitle-2 text-medium-emphasis">Start Timing</div>
+                  <div>{{ programDetails?.startTiming || 'N/A' }}</div>
                 </div>
-                <div>
-                  <div class="text-subtitle-2 text-medium-emphasis">Mentees</div>
-                  <div>Current: {{ mentor.currentMentees }} / Total: {{ mentor.totalMentees }}</div>
+                <div class="mb-4">
+                  <div class="text-subtitle-2 text-medium-emphasis">End Timing</div>
+                  <div>{{ programDetails?.endTiming || 'N/A' }}</div>
+                </div>
+                
+                <div class="mb-4">
+                  <div class="text-subtitle-2 text-medium-emphasis">End Date</div>
+                  <div>{{ programDetails?.endDate || 'N/A' }}</div>
                 </div>
               </v-col>
             </v-row>
@@ -70,16 +173,16 @@ onMounted(() => {
         </v-card>
 
         <v-card class="glass-card">
-          <v-card-title>Skills</v-card-title>
+          <v-card-title>Days</v-card-title>
           <v-card-text>
             <v-chip
-              v-for="skill in mentor.skills"
-              :key="skill"
+              v-for="days in programDetails.days"
+              :key="days"
               class="me-2 mb-2"
               color="primary"
               variant="outlined"
-            >
-              {{ skill }}
+            >   
+            {{ days }}       
             </v-chip>
           </v-card-text>
         </v-card>

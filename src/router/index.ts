@@ -40,7 +40,7 @@ const routes = [
     component: ProgramList,
   },
   {
-    path: '/programs/:id',
+    path: '/programDetail/:id/:programId',
     name: 'program-details',
     component: ProgramDetails,
     props: true,

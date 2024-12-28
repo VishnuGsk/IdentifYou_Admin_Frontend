@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 const router = useRouter()
@@ -13,6 +13,14 @@ const headers = [
         ];
 
 const mentees = ref([]);
+const statuses = ref(["All", "Active", "Inactive"]);
+const selectedStatus = ref("All");
+const filteredMentees = computed(() => {
+          if (selectedStatus.value === "All") return mentees.value;
+          return mentees.value.filter(
+            (mentee) => mentee.status === selectedStatus.value
+          );
+    });
 const fetchMentees = async () => {
           try {
             const response = await axios.get(`${import.meta.env.VITE_APP_BACKEND_URL}/api/v1/mentees`);
@@ -50,10 +58,30 @@ const viewDetails = (id: number) => {
             class="max-width-200"
           ></v-text-field>
         </v-card-title>
-
+        <div class="d-flex align-center">
+          <!-- Status Filter -->
+          <v-chip-group
+            v-model="selectedStatus"
+            class="status-chip-group"
+            column
+          >
+            <v-chip
+              v-for="status in statuses"
+              :key="status"
+              :value="status"
+              class="ma-2"
+              :color="selectedStatus === status ? 'primary' : 'default'"
+              text-color="white"
+              outlined
+              pill
+            >
+              {{ status }}
+            </v-chip>
+          </v-chip-group>
+        </div>
         <v-data-table
           :headers="headers"
-          :items="mentees"
+          :items="filteredMentees"
           :search="search"
           hover
           class="mentee-table"

@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { useTheme } from 'vuetify'
 import SideNav from './components/SideNav.vue'
-
+import { Eventbus } from './plugins/eventBus';
 const theme = useTheme()
 const drawer = ref(true)
 </script>

@@ -1,11 +1,18 @@
 <script setup lang="ts">
-        import { ref, onMounted } from 'vue'
+        import { ref, onMounted, computed } from 'vue'
         import { useRouter } from 'vue-router'
         import axios from 'axios'
         const router = useRouter()
         const search = ref('')
         const mentors = ref([])
-        
+        const statuses = ref(["All", "Active", "Inactive"]);
+        const selectedStatus = ref("All");
+        const filteredMentors = computed(() => {
+          if (selectedStatus.value === "All") return mentors.value;
+          return mentors.value.filter(
+            (mentor) => mentor.status === selectedStatus.value
+          );
+    });
         const headers = [
           { title: 'Full Name', key: 'fullName', align: 'start', sortable: true },
           { title: 'Email', key: 'email', align: 'start', sortable: true },
@@ -51,10 +58,30 @@
             class="max-width-200"
           ></v-text-field>
         </v-card-title>
-
+        <div class="d-flex align-center">
+          <!-- Status Filter -->
+          <v-chip-group
+            v-model="selectedStatus"
+            class="status-chip-group"
+            column
+          >
+            <v-chip
+              v-for="status in statuses"
+              :key="status"
+              :value="status"
+              class="ma-2"
+              :color="selectedStatus === status ? 'primary' : 'default'"
+              text-color="white"
+              outlined
+              pill
+            >
+              {{ status }}
+            </v-chip>
+          </v-chip-group>
+        </div>
         <v-data-table
           :headers="headers"
-          :items="mentors"
+          :items="filteredMentors"
           :search="search"
           hover
           class="mentor-table"
