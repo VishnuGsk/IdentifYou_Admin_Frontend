@@ -1,4 +1,3 @@
-
 import { createRouter, createWebHistory } from 'vue-router'
 import MentorList from '../views/mentors/MentorList.vue'
 import MentorDetails from '../views/mentors/MentorDetails.vue'
@@ -6,6 +5,8 @@ import MenteeList from '../views/mentees/MenteeList.vue'
 import MenteeDetails from '../views/mentees/MenteeDetails.vue'
 import ProgramList from '../views/programs/ProgramList.vue'
 import ProgramDetails from '../views/programs/ProgramDetails.vue'
+import ScheduleList from '../views/schedules/ScheduleList.vue'
+import ScheduleDetails from '../views/schedules/ScheduleDetails.vue'
 
 const routes = [
   {
@@ -17,6 +18,7 @@ const routes = [
     name: 'mentors',
     component: MentorList,
   },
+  
   {
     path: '/mentors/:id',
     name: 'mentor-details',
@@ -27,6 +29,16 @@ const routes = [
     path: '/mentees',
     name: 'mentees',
     component: MenteeList,
+  },
+  {
+    path: '/schedules',
+    name: 'schedules',
+    component: ScheduleList,
+  },
+  {
+    path: '/scheduleDetails/:scheduleId/:programId',
+    name: 'schedule-details',
+    component: ScheduleDetails,
   },
   {
     path: '/mentees/:id',

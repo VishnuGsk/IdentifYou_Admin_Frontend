@@ -9,6 +9,7 @@ const navItems = [
   { title: 'Mentor Management', icon: 'mdi-account-tie', path: '/mentors' },
   { title: 'Mentee Management', icon: 'mdi-account-school', path: '/mentees' },
   { title: 'Program Management', icon: 'mdi-book-education', path: '/programs' },
+  { title: 'Schedule Management', icon: 'mdi-book-education', path: '/schedules' },
 ]
 </script>
 
